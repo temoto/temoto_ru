@@ -1,0 +1,63 @@
+<!-- saved from url=(0025)http://miksir.pp.ru/?r=69 -->
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>MiksIr : rus : mod_aclr</title>
+<style type="text/css">
+body { background-color: #714b00; color: #fff; margin: 0; font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 16px; }
+.wrap { width: 95%; max-width: 1400px; margin: 0 auto; }
+a:hover { color: #CCCCCC; }
+a:visited { color: blue; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div style="margin: 8px 0 16px 0; border-bottom: 1px solid #000; font-size: 18px; background-color: #f0b100; color: #000;">
+    Внимание: это копия страницы с сайта miksir.pp.ru, созданная без каких-либо разрешений, потому что в нужный момент сайт не работал, автор был недоступен, а модуль был нужен людям.<br>
+    Ссылка на <a href="http://miksir.pp.ru/?r=72" rel="canonical" target="_blank">оригинал</a>. Вернуться на <a href="/">главную</a>.
+</div>
+
+<a href="mod_aclr-eng.html">eng</a> : <b>rus</b>
+
+<div class="text"><p><strong><u>mod_aclr</u></strong><br>Модуль предназначен для работы на бек-енд сервере apache v.1.3.x совместно с <a href="http://sysoev.ru/">nginx </a>в качестве фронт-енда. </p>
+<p><strong><u>Преамбула</u></strong><br>Основная проблема использования маленьких серверов в качестве фронт-енд в виртуальном хостинге - это полное непонимание синтаксиса .htaccess, а значит игнорирование настроек пользователя. Решения обычно два - или использование в качестве фронт-енд apache (с mod_proxy или mod_accel) или использование маленьких серверов в режиме "проксировать все". В случае последнего варианта большие файлы проходят стадию передачи бек-енд-&gt;фронт-енд, да еще и кешируются фронт-ендом, что вносит дополнительную нагрузку как на сервисы, так и на дисковую систему.</p>
+<p><strong><u>Задача модуля</u></strong><br>Для решения этой проблемы был написан mod_aclr. Его задача - определить тип файла. Фронт-енд&nbsp;(nginx)&nbsp;проксирует каждый запрос на бек-енд (apache). Если это динамический контент - работа продолжается в обычном режиме - бек-енд выдает его фронт-енду, а тот уже отдает клиенту. Если же запрошенный файл - статика, то тут вступает в работу mod_aclr, который выдает фронт-енду&nbsp;в качестве ответа специальный внутренний редирект. Фронт-енд следует этому редиректу и начинает выдачу файла. Редирект выдается после отработки всей логики apache включая htaccess.</p>
+<p><strong><u>Идея реализации</u></strong><br>Модуль встает в apache как default handler. Этот обработчик API сервера вызывает в последнюю очередь - если запрос не был перехвачен другими хендлерами. Поставив модуль первым в списке (обрабатывается последним по внутренней логике), mod_aclr получит управление лишь если ни один другой модуль не захотел обработать этот запрос.<br>Получив управление модуль делает необходимые проверки - включен ли он для этого сервера, есть ли в запросе от клиента заголовок X-Accel-Internal, существует ли запрошенный файл и некоторые другие проверки. Если происходит ошибка - модуль завершается с передачей управления следующему (обычно это mod_core).</p>
+<p><strong><u>Принцип работы<br></u></strong>Специальной обработке подвергаются запросы&nbsp;содержащие заголовок X-Accel-Internal - это позволяет серверу нормально работать и с обычными клиентами. Если результатом запроса является файл и логика модуля включена для этого виртуального сервера&nbsp;(директории), mod_aclr выдает в качестве ответа OK с длиной тела 0 (Content-Length: 0) и специальным заголовком X-Accel-Redirect, который состоит из двух частей - строки, переданной посредством X-Accel-Internal и переданного URI.<br>Для X-Accel-Internal поддерживается макрос %host%, который при выдаче в X-Accel-Redirect заменяется на имя сервера (виртуального)&nbsp;бек-енда.</p>
+<p><strong><u>Директивы</u></strong></p>
+<p><strong>AccelRedirectSet</strong> {On|Off}<br>Default: Off<br>Context: server config, virtual host, directory</p>
+<p>Включает (выключает)&nbsp;работу модуля. В выключенном состоянии модуль "прозрачен".</p>
+<p><strong>AccelRedirectSize</strong> size[k|M]<br>Default: -1<br>Context: server config, virtual host, directory</p>
+<p>Устанавливает минимальный размер запрошенного файла, начиная с которого модуль выдает редирект. Файлы с меньшим размером обрабатываются apache как обычно и выдаются клиенту.</p>
+<p><strong>AccelRedirectDebug</strong> level<br>Default: 0<br>Context: server config</p>
+<p>Устанавливает уровень отладочных сообщений. 0 - отключает их.</p>
+<p><strong><u>Конфигурация nginx</u></strong></p>
+<p>Ниже приведен пример конфигурации nginx в качестве фронт-енд.</p>
+<p>server {<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;listen x.x.x.x;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; server_name&nbsp; server.name.ru;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; location / {<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; proxy_pass&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; http://127.0.0.1:80;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; proxy_set_header&nbsp;&nbsp;&nbsp; X-Real-IP&nbsp; $remote_addr;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; proxy_set_header&nbsp;&nbsp;&nbsp; X-Accel-Internal /internal_xxx;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; proxy_set_header&nbsp;&nbsp;&nbsp; Host $http_host;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; location /internal_xxx/ {<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; root&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/home/server.name.ru/htdocs;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rewrite&nbsp;&nbsp;&nbsp;^/internal_xxx/(.*)$ /$1 break;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; internal;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>}</p>
+<p>Для всех запросов сервера осуществляется проксирование на бек-енд (127.0.0.1) c установкой заголовка&nbsp;X-Accel-Internal (без него mod_aclr будет обрабатывать запрос как обычный). Если контент - динамика, бек-енд выдает его в ответ фронт-енду, а тот уже - клиенту. Если контент - статика, модуль mod_aclr выдает фронт-енду пустой ответ с заголовком X-Accel-Redirect: /internal_xxx/uri/to/file.mp3. Nginx обрабатывает этот запрос через второй location, где установлен уже корень сайта, и выдает запрошенный файл своими силами.</p>
+<p>Вариант 2 - без использования блоков server на каждый хост.</p>
+<p>map $int_host $root {<br>&nbsp;&nbsp;&nbsp; default /path/to/server/no_server_found/;<br>&nbsp;&nbsp;&nbsp; server1.ru /path/to/server/1/;<br>&nbsp;&nbsp;&nbsp; server2.ru /path/to/server/2/;<br>}<br></p>
+<p>server {<br>&nbsp;&nbsp;&nbsp;&nbsp; listen x.x.x.x;<br>&nbsp;&nbsp;&nbsp;&nbsp; location / {<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; proxy_pass&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; http://127.0.0.1:80;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; proxy_set_header&nbsp;&nbsp;&nbsp; X-Real-IP&nbsp; $remote_addr;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; proxy_set_header&nbsp;&nbsp;&nbsp; X-Accel-Internal /internal;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; proxy_set_header&nbsp;&nbsp;&nbsp; Host $http_host;<br>&nbsp;&nbsp;&nbsp;&nbsp; }<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; location /internal/ {<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; internal;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; set $int_host $http_host;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; root /$root;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rewrite ^/internal/(.*)$ /$1 break;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>}</p>
+<p>Данный вариант стал возможен начиная с одной из версий nginx, благодаря обработке переменных в директиве root. Тут все виртуальные хосты описаны в виде map блока, что занимает значительно меньше памяти в сравнении с 1-м вариантом.</p>
+<p><strong><u>Безопасность</u></strong></p>
+<p>Схема редиректов вносит потенциальную дыру в безопасности масс-хостинга, о которой следует упомянуть. Речь идет о случаях, когда клиент, используя свои скрипты, может сам выдать заголовок X-Accel-Redirect. Теоретически там может быть редирект на чужой файл (т.е. файл другого клиента). Хотя&nbsp;X-Accel-Redirect не может содержать имя хоста и отсчитывается от текущего root, об этой проблеме&nbsp;следует помнить&nbsp; при создании собственной конфигурации.</p>
+<p><strong><u>Скачать</u></strong></p>
+<p>Текущая версия: <a href="mod_aclr-0.04.c">mod_aclr-0.04.c</a></p>
+<p><strong><u>Установка</u></strong></p>
+<p>Модуль устанавливается стандартно. Предпочтительнее использование apxs. Пример:<br><strong>/usr/local/apache/bin/apxs -c mod_aclr.c </strong>- компиляция модуля<br><strong>/usr/local/apache/bin/apxs -i mod_aclr.so - </strong>инсталяция модуля</p>
+<p>После этого следует прописать загрузку модуля директивами <br>LoadModule aclr_module&nbsp;libexec/mod_aclr.so<br>AddModule mod_aclr.c<br>в <strong>начало</strong> списка модулей (самым верхним)</p>
+<p><strong><u>Известные проблемы</u></strong></p>
+<p>Решения для апача 2.x нет</p>
+<p><u><strong>Изменения</strong></u></p>
+<p>0.04<br>&nbsp;&nbsp; Исправлена коллизия с именем функции parse_bytes&nbsp;из libroken (спасибо Alex Vorona)<br><br>0.03<br>&nbsp;&nbsp;&nbsp;Теперь собирается и на FreeBSD 4.11 (патч прислал Yevgeniy Kruglov)</p>
+<p>0.02<br>&nbsp;&nbsp; Добавлены отладочные директивы и директива управления ими<br>&nbsp;&nbsp; Поправлена работа с SSI (модуль пытался обрабатывать внутренние подзапросы apache)<br>&nbsp;&nbsp; Добавлена обработка&nbsp;макроса %host% в заголовке X-Accel-Internal</p>
+<p>0.01<br>&nbsp; Начало<br></p></div>
+
+      <div align="center"><br>
+        <b> 1995-2006 // <label title="Такой необычный вид e-mail адреса сделан для защиты от автоматических роботов спамеров. Замените &#39;&lt;S&gt;&#39; на &#39;@&#39; при написании письма">miksir&lt;S&gt;maker.ru</label> 
+        </b>
+      </div>
+
+</body>
+</html>

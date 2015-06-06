@@ -1,0 +1,24 @@
+<!doctype html>
+<style>
+  body { text-align: center; }
+  #mr-t { width: 400px; height: 250px; }
+</style>
+<h1>Mind reader</h1>
+<p>This textarea will display what you really think, not what you type.</p>
+<textarea id=mr-t autofocus></textarea>
+<p id=debug></p>
+<script src="http://lib.rl0.ru/list/jquery/1.4.3/jquery.min.js"></script>
+<script>
+(function () {
+  /* Heavy government encryption. */
+  var mind_text_e = "N'pfis'sh'ofqb'tb\x7f)'N'ubfkk~'pfis'ns)'N'pfis'sh'ardl'thjbhib'th'cbtwbufsbk~+'n'dfi s'sonil'ha'fi~soni`'bktb)'@bb}'sofs t'ofuc)'))))))))'tb\x7f')))'ardl')))))'khkdfst)))'Pfns'pofs8&'Ho'pbkk'sob~ ub'ubfkk~'arii~'fasbu'fkk)";
+  var mind_text = "";
+  for (var i = 0; i < mind_text_e.length; i++) {
+    mind_text += String.fromCharCode(mind_text_e.charCodeAt(i) ^ 7);
+  }
+  var t = document.getElementById('mr-t');
+  $(t).bind('keyup change input', function () {
+    t.value = mind_text.substring(0, t.value.length);
+  });
+})();
+</script>

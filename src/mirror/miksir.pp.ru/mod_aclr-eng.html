@@ -1,0 +1,55 @@
+<!-- saved from url=(0025)http://miksir.pp.ru/?r=72 -->
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>MiksIr : eng : mod_aclr</title>
+<style type="text/css">
+body { background-color: #714b00; color: #fff; margin: 0; font-family: Verdana, Arial, Helvetica, sans-serif; font-size: 16px; }
+.wrap { width: 95%; max-width: 1400px; margin: 0 auto; }
+a:hover { color: #CCCCCC; }
+a:visited { color: blue; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div style="margin: 8px 0 16px 0; border-bottom: 1px solid #000; font-size: 18px; background-color: #f0b100; color: #000;">
+    Big fat warning: this is a mirror of page from miksir.pp.ru, created without asking any permissions, because neither website nor its author were accessible at the moment and some people needed it.<br>
+    See <a href="http://miksir.pp.ru/?r=72" rel="canonical" target="_blank">original page</a>. Go back <a href="/">home</a>.
+</div>
+
+<b>eng</b> : <a href="mod_aclr-rus.html">rus</a>
+
+<div class="text"><p><strong><u>mod_aclr</u></strong><br>This module's purpose is to work with "nginx -- apache" scheme. Only Apache 1.3.x supported.</p>
+<p>For mass-hosting usually you can't use light http server (such as nginx). It's because clients of hosting want to use .htaccess file. You can use nginx only as reverse proxy server for proxing all request to apache. But this scheme has big overhead for big static files - after request this file passed to nginx&nbsp;and caching at disk. As result, apache spend time for send file and you&nbsp;have&nbsp;double load for HDD system.</p>
+<p>Nginx has nice solution for backend-controled file transfer. If backend return special http header X-Accel-Redirect with file name as argument (no body required), nginx can send this file to client directly.</p>
+<p>mod_aclr stands as default handler in apache <strong>after</strong> all others handlers (init directive must be first in load modules list). At this stage apache usually ready for send static file (all other actions, as php, allow/deny, etc - already runs). Module check own setup and send X-Accel-Redirect with zero content length. Nginx receive this header and start to send file.</p>
+<p>mod_aclr also check X-Accel-Internal header and running only if this header exists. You must set this header for use mod_aclr. If header missed, mod_aclr state is off - it's helps use apache also directly without nginx. Value of this header added to value of returned X-Accel-Redirect - look expample for understand this.</p>
+<p><strong><u>Directives</u></strong></p>
+<p><strong>AccelRedirectSet</strong> {On|Off}<br>Default: Off<br>Context: server config, virtual host, directory</p>
+<p>Turn on or off module action</p>
+<p><strong>AccelRedirectSize</strong> size[k|M]<br>Default: -1<br>Context: server config, virtual host, directory</p>
+<p>Minimal file size for send special header. For small files may be better send file directly. Our advise - 10-20k or not set.</p>
+<p><strong>AccelRedirectDebug</strong> level<br>Default: 0<br>Context: server config</p>
+<p>Debug level. 0 - turn off debug.&nbsp;Debug levels can be from 1&nbsp;to 4.</p>
+<p><strong><u>Config&nbsp;of&nbsp;nginx</u></strong></p>
+<p>It's example of nginx config for use with module.</p>
+<p>server {<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;listen x.x.x.x;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; server_name&nbsp; server.name.ru;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; location / {<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; proxy_pass&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; http://127.0.0.1:80;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; proxy_set_header&nbsp;&nbsp;&nbsp; X-Real-IP&nbsp; $remote_addr;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;we are set X-Accel-Internal&nbsp;to /myinternal1. As result,&nbsp;if we asking&nbsp;/mydir/myfile.mp3, <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # mod_aclr return /myinternal1/mydir/myfile.mp3<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # its help us catch this redirect to right root<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; proxy_set_header&nbsp;&nbsp;&nbsp; X-Accel-Internal /myinternal1;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; proxy_set_header&nbsp;&nbsp;&nbsp; Host $http_host;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; location /myinternal1/ {<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;# yep, here we catch redirect<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; root&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/home/server.name.ru/htdocs;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rewrite&nbsp;&nbsp;&nbsp;^/myinternal1/(.*)$ /$1 break;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; # result&nbsp;file is /home/server.name.ru/htdocs/mydir/myfile.mp3<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; internal;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>}</p>
+<p>Second variant - more compact config for mass hosting. Here only one server block for all client servers and server host mapped to root dir by nginx's map directive.</p>
+<p>map $int_host $root {<br>&nbsp;&nbsp;&nbsp; default /path/to/server/no_server_found/;<br>&nbsp;&nbsp;&nbsp; server1.ru /path/to/server/1/;<br>&nbsp;&nbsp;&nbsp; server2.ru /path/to/server/2/;<br>}<br></p>
+<p>server {<br>&nbsp;&nbsp;&nbsp;&nbsp; listen x.x.x.x;<br>&nbsp;&nbsp;&nbsp;&nbsp; location / {<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; proxy_pass&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; http://127.0.0.1:80;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; proxy_set_header&nbsp;&nbsp;&nbsp; X-Real-IP&nbsp; $remote_addr;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; proxy_set_header&nbsp;&nbsp;&nbsp; X-Accel-Internal /internal;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; proxy_set_header&nbsp;&nbsp;&nbsp; Host $http_host;<br>&nbsp;&nbsp;&nbsp;&nbsp; }<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; location /internal/ {<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; internal;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; set $int_host $http_host;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; root /$root;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; rewrite ^/internal/(.*)$ /$1 break;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>}</p>
+<p><strong><u>Download</u></strong></p>
+<p>Last version: <a href="mod_aclr-0.04.c">mod_aclr-0.04.c</a></p>
+<p><strong><u>Install</u></strong></p>
+<p>You&nbsp;can install module via apxs:<br><strong>/usr/local/apache/bin/apxs -c mod_aclr.c </strong>- compile<br><strong>/usr/local/apache/bin/apxs -i mod_aclr.so - </strong>installing</p>
+<p>After&nbsp;installing add&nbsp;to httpd.conf the following:&nbsp;&nbsp;&nbsp;<br>LoadModule aclr_module&nbsp;libexec/mod_aclr.so<br>AddModule mod_aclr.c<br><strong>at the top of all others</strong></p>
+<p><strong>Attention!</strong>&nbsp; If this module will not be loaded first, all other default-handler modues will be blocked.</p></div>
+
+      <div align="center"><br>
+        <b> 1995-2006 // <label title="Такой необычный вид e-mail адреса сделан для защиты от автоматических роботов спамеров. Замените &#39;&lt;S&gt;&#39; на &#39;@&#39; при написании письма">miksir&lt;S&gt;maker.ru</label> 
+        </b>
+      </div>
+
+</div>
+</body>
+</html>

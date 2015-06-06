@@ -1,0 +1,50 @@
+body {
+	padding: 3% 4%;
+	font-size: 14px;
+	font-family: helvetica;
+	color: black;
+	background: #d0e8e8;
+}
+
+.content { position: relative; }
+
+.tag {
+	font-size: 12px;
+    font-family: verdana;
+    color: #119966;
+    background-color: #c8e8d8;
+}
+
+p { line-height: 180%; }
+
+dd { margin: 0 0 1% 2%; }
+
+a, a:visited { color: #2525d5; }
+
+.ads {
+	position: absolute;
+	top: 0px;
+	right: 0px;
+	width: 20%;
+	height: 25%;
+}
+
+.ads .ad {
+	display: block;
+	margin: 0px 0px 1% 0px;
+}
+
+ul.articles { list-style-type: none; }
+
+ul.articles > li { margin-bottom: 1%; }
+
+ul.friend-list > li {
+	display: inline;
+	margin-right: 2%;
+}
+
+.width-50pc { width: 50%; }
+
+.f-left { float: left; }
+.f-right { float: right; }
+

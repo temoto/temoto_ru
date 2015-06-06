@@ -1,0 +1,120 @@
+Sergey Shepelev
+Phone: +7 (926) 331-6086
+E-mail: temotor@gmail.com
+Web: http://temoto.ru/
+Current residence: Moscow, Russia.
+
+
+Objective
+
+Software engineer
+
+
+Education
+
+2005 Moscow College of Computer Science. Diploma in Statistics.
+2007 Moscow Institute of Banking Business. Incomplete degree in Accounting.
+
+Courses:
+
+* Algorithms, Coursera, 2012
+
+Books:
+
+* Introduction to Algorithms by Cormen, Leiserson, Rivest, Stein.
+* TCP/IP Illustrated by Fall, Stevens.
+* Distributed systems: Principles and Paradigms by Tanenbaum, Van Steen.
+* Compilers: Principles, Techniques, and Tools by Aho, Lam, Sethi, Ullman.
+
+
+Experience
+
+2014 – 2014 Ayyo (online cinema), https://ayyo.ru/
+    Position: Senior developer
+    Responsibilities: development of site backend, API, report engine
+    Key accomplishments:
+     * task queue integration
+     * optimized automatic testing
+     * tool for fuzzy search by movie title
+     * optimized business reports
+    Tools: Crucible, git, Jira, PostgreSQL, Python, Redis, Skype, Kanban.
+
+2012 – 2014 Ostrovok.ru (hotel booking start-up)
+    Position: Software engineer
+    Responsibilities: development of internal and external APIs
+    Key accomplishments:
+     * open source PostgreSQL sensitive data obfuscator in Go https://github.com/ostrovok-team/pgdump-obfuscator
+     * pushed and took part in the separation of API related services into standalone projects
+       to improve release cycle and divide responsibilities
+    Tools: code review, debian packages, Go, statsd.
+
+2010 – 2012 Rambler-Afisha United Company (major local web portal)
+    Position: Software engineer
+    Responsibilities: architecture and development of:
+     * custom forum engine backend and deployment http://autorambler.ru/pravo/
+     * air tickets search engine backend and deployment http://avia.rambler.ru/
+    Key accomplishments:
+     * structured statistics collection with major positive impact on ability to collect valuable metrics
+       for operations and product managers.
+     * helped to try and to push technologies such as Redis, git, Postgresql streaming replication,
+       FreeBSD jails.
+    Tools: Python, ipdb, gdb, Postgresql, Redis, git, tcpdump.
+
+2008 — 2010 Reggi.ru domain registrar
+    Position: Software engineer
+    Responsibilities: development of projects:
+     * domain parking (ads on expired domains) platform using Python/Postgresql
+     * efficient HTTPS certificate crawler using libev+udns+gnutls
+    Key accomplishments:
+     * pushed new versions of software stack (nginx, PostgreSQL, Python)
+     * simpler architecture decisions with positive impact
+    Tools: git, nginx, Memcacheq, MongoDB, Python.
+
+2008 – 2008 DIAMOND Solution start-up
+    Position: Web developer
+    Responsibilities: development of social network for film production industry
+    Tools: Python, Django.
+
+2007 – 2008 MAS Elektronik AG (German TV and related products distributor)
+    Position: Web developer
+    Responsibilities:
+     * support and development of multiple company web sites
+    Key accomplishments:
+     * migrated in-house website platform to Wordpress. This had positive impact on costs of further support of company websites.
+     * created embeddable feedback form using Django/MySQL
+    Tools: .NET 2.0, ASP, XSLT, Wordpress.
+
+2006 – 2007 Sneg-Media (web studio start-up)
+    Position: Engineer
+    Responsibilities:
+     * server operations
+     * development of Radio Theater project (volunteers propose screenplays and voice them)
+     * testing, modification of Flash based web-site templates
+    Tools: Flash (ActionScript), FreeBSD, MySQL.
+
+
+Skills
+
+* Excellent: Bash, DNS, git, Go, HTTP, Linux, PostgreSQL, Python, Redis, SSL, TCP
+* Good: C, C#, FreeBSD, Javascript, MySQL, PHP, XSL, Subversion, ZeroMQ
+* Familiar: Java, R, MSSQL
+* Fast learner
+* Fluent English, both written and verbal
+* Business requirements analysis
+* Design of systems that process and store large data stream
+* Design of low latency systems
+* Reasonable use of key-value data stores
+* Debugging, fixing performance issues
+* Prototype-based research
+
+
+Volunteer projects
+
+* Took part in organising two Moscow Python Meetup (10 to 20 attendants local conference) in 2010 and 2012.
+* Article explaining DNS in Russian http://temoto.ru/a/kak-rabotayut-domeny.html
+* GitHub profile, my open source projects: https://github.com/temoto
+* Ohloh profile https://www.ohloh.net/accounts/temoto
+* Maintainer of Eventlet, pure Python concurrent network library. http://eventlet.net/ 2012 to present.
+
+
+Last update: 2014-03-09

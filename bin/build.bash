@@ -41,7 +41,7 @@ rm -rf "${build_path}"
 mkdir -p "${build_path}"
 
 echo "2. build static pages"
-rsync -a src/ ${build_path}/
+venv/bin/pelican --settings=./pelicanconf.py --output="${build_path}"
 
 if [[ $commit -eq 1 ]]; then
     echo "3. Updating git branch gh-pages"

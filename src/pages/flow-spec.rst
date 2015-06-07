@@ -1,3 +1,10 @@
+Flow, a programming language, specification
+###########################################
+
+:date: 2009-08-20
+:tags: devel
+
+
 What
 ====
 
@@ -7,7 +14,9 @@ The general idea behind Flow is that many problems may be represented as parsing
 
 
 Author: Sergey Shepelev temotor@gmail.com
+
 Huge thanks to Ryah Dahl (http://tinyclouds.org/) for early discussions on this.
+
 Written in August 2009.
 
 
@@ -242,6 +251,7 @@ Stream
 ======
 
 Stream is a special type of interface. There are 3 types of streams: `InStream` (read-only), `OutStream` (write-only) and `Stream` (read-write). Streams are used together with Parsers to process flow of data. Many real world tasks may be framed as parsing flow of data. I.e. UNIX utility *head*. It looks for newline chars in input stream and puts first n lines to output stream.
+::
 
     interface InStream a
         self.get :: a
@@ -268,11 +278,11 @@ Flow compiles modules into directed graphs of expressions, i.e. this code::
     print x = pipe x id stdout
     main = do print "foo"
 
-May be compiled to following graph:
+May be compiled to following graph::
 
-      /-> "foo" -\
-main -            -> copy stdout "foo"
-      \-> stdout /
+          /-> "foo" -\
+    main -            -> copy stdout "foo"
+          \-> stdout /
 
 Here string "foo" and expression `stdout` are evaluated first, then `copy stdout "foo"` is evaluated. First two may be parallelized because both are pure, but compiler would host constant string in first place so there's nothing to evaluate for it. `stdout` is opened by parent shell, there's nothing to do for that expression either. All useful job will happen only in `copy` function.
 

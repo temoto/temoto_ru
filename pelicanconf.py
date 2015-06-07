@@ -9,7 +9,8 @@ SITEURL = 'http://temoto.ru'
 PATH = 'src'
 DELETE_OUTPUT_DIRECTORY = True
 
-DATE_FORMATS = {'en': '%Y-%m-%d', 'ru': '%Y-%m-%d'}
+DEFAULT_DATE_FORMAT = '%Y-%m-%d'
+# DATE_FORMATS = {'en': '', 'ru': '%Y-%m-%d'}
 TIMEZONE = 'UTC'
 DEFAULT_LANG = 'ru'
 
@@ -19,7 +20,7 @@ TRANSLATION_FEED_ATOM = None
 AUTHOR_FEED_ATOM = None
 AUTHOR_FEED_RSS = None
 
-RELATIVE_URLS = False
+RELATIVE_URLS = True
 DEFAULT_PAGINATION = False
 
 # Blogroll
